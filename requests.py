@@ -85,8 +85,6 @@ def select_adress_pickup():
         session.close()
         return mass_return
 
-        
-
 def bron_rent_car(car_id):
     with Session(engine) as session:
         
@@ -106,6 +104,27 @@ def bron_rent_car(car_id):
             return (car)
         
         session.close()
+
+def bron_unrent_car(car_id):
+    with Session(engine) as session:
+        
+        statement_car = select(cars)\
+                        .join(status_table_car)\
+                        .where(cars.id == car_id)
+        
+        statement_status = select(status_table_car.status_id)\
+                        .where(status_table_car.status_name == 'Available')
+        
+        results = session.exec(statement_car)
+        result_status = session.exec(statement_status).first()
+        
+        for car in results:
+            car.status_id = result_status
+            session.commit()
+            return (car)
+        
+        session.close()
+
 
 def create_order(car_id, user_tel, cost_day = 0, 
                  date_s = date.today(), 
@@ -166,22 +185,35 @@ def create_user(user_id):
         session.close()
 
         return True
+    
+def del_order(order_id):
+    with Session(engine) as session:
+        statement = select(orders).where(orders.orders_id == order_id)
+        result = session.exec(statement).one_or_none()
+
+        if result:  # Если запись найдена
+            session.delete(result)  # Удаляем запись
+            session.commit()  # Фиксируем изменения
+            return(f"Запись с ID {order_id} удалена.")
+        else:
+            return(f"Запись с ID {order_id} не найдена.")
 
         
 if __name__ == '__main__':
-    select_cars()
-    print('-'*20)
-    select_available_cars()
-    print('-'*20)
-    select_available_cars_and_rent_end_cars()
-    print('-'*20)
-    select_adress_pickup()
-    print('-'*20)
-    bron_rent_car(4)
-    print('-'*20)
-    #create_order(5,1,123, date.today(), date.today()+ timedelta(days=5))
-    print('-'*20)
-    #print(select_orders())
-    print('*'*20)
-    print(date.today())
-    print(create_order(1,'79091234652',123,date.fromisoformat("2024-12-12"),date.fromisoformat("2024-12-15"),1))
+    # select_cars()
+    # print('-'*20)
+    # select_available_cars()
+    # print('-'*20)
+    # select_available_cars_and_rent_end_cars()
+    # print('-'*20)
+    # select_adress_pickup()
+    # print('-'*20)
+    # bron_rent_car(4)
+    # print('-'*20)
+    # #create_order(5,1,123, date.today(), date.today()+ timedelta(days=5))
+    # print('-'*20)
+    # #print(select_orders())
+    # print('*'*20)
+    # print(date.today())
+    # print(create_order(1,'79091234652',123,date.fromisoformat("2024-12-12"),date.fromisoformat("2024-12-15"),1))
+    print(del_order(1))

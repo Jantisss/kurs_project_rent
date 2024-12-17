@@ -79,4 +79,11 @@ def create_new_order(order: OrderCreate):
         raise HTTPException(status_code=500, detail=str(e))
     return {"message": f"Order created for car ID {order.car_id}, user ID {order.user_tel}."}
 
+@app.put("/unbront_rent_car/{car_id}")
+def unbron_car(car_id: int):
+    bron_unrent_car(car_id)
+    return {"message": f"Car with ID {car_id} has been booked."}
 
+@app.delete('/delete_order/{order_id}')
+def delete_order(order_id):
+    return del_order(order_id)
